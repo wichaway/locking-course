@@ -3,186 +3,348 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>מיקסר קרוספייד</title>
+<title>קונסולת קרוספייד</title>
+<meta name="description" content="כלי לקרוספייד בין שני שירים בדפדפן - קובעים נקודת מעבר ומשך, ומורידים קובץ WAV מוכן">
 <style>
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  body {
-    background: #241f33;
-    color: #efeaf7;
+  :root {
+    --bg: #17151a;
+    --grain: rgba(255,255,255,0.02);
+    --panel: #201d24;
+    --panel-2: #29252f;
+    --border: #3c3642;
+    --text: #ece7de;
+    --text-muted: #9a9086;
+    --accent: #e8a54b;
+    --accent-ink: #241a08;
+    --good: #6fcf97;
+    --good-ink: #0d2417;
+    --bad: #e2694f;
+    --shadow: 0 20px 60px rgba(0,0,0,0.45);
+  }
+  :root[data-theme="light"] {
+    --bg: #f2ede3;
+    --grain: rgba(0,0,0,0.02);
+    --panel: #ffffff;
+    --panel-2: #ece3d2;
+    --border: #d9cdb6;
+    --text: #241f1a;
+    --text-muted: #766c5c;
+    --accent: #b8720c;
+    --accent-ink: #fff8ec;
+    --good: #2a9660;
+    --good-ink: #f2fbf6;
+    --bad: #b93e26;
+    --shadow: 0 20px 50px rgba(70,55,30,0.14);
+  }
+  @media (prefers-color-scheme: light) {
+    :root:not([data-theme="dark"]) {
+      --bg: #f2ede3;
+      --grain: rgba(0,0,0,0.02);
+      --panel: #ffffff;
+      --panel-2: #ece3d2;
+      --border: #d9cdb6;
+      --text: #241f1a;
+      --text-muted: #766c5c;
+      --accent: #b8720c;
+      --accent-ink: #fff8ec;
+      --good: #2a9660;
+      --good-ink: #f2fbf6;
+      --bad: #b93e26;
+      --shadow: 0 20px 50px rgba(70,55,30,0.14);
+    }
+  }
+
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+  }
+  body {
     min-height: 100vh;
+    padding: 40px 16px 80px;
     display: flex;
     justify-content: center;
-    padding: 32px 16px 80px;
   }
-  .card {
-    width: 100%;
-    max-width: 560px;
-    background: #2e2845;
-    border-radius: 16px;
-    padding: 28px 24px;
-    box-shadow: 0 10px 40px rgba(0,0,0,0.35);
+  .mono {
+    font-family: ui-monospace, "SF Mono", "Cascadia Code", "Roboto Mono", Menlo, Consolas, monospace;
+    font-variant-numeric: tabular-nums;
   }
-  h1 {
-    font-size: 22px;
-    margin-bottom: 4px;
+
+  .app { width: 100%; max-width: 760px; }
+
+  .masthead {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 22px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border);
   }
-  h1 span { color: #9d7bff; }
-  .subtitle {
-    color: #b9a9e8;
+  .masthead h1 {
+    font-size: 21px;
+    letter-spacing: 0.02em;
+    margin: 0;
+  }
+  .masthead .unit {
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+
+  .console {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+  @media (min-width: 720px) {
+    .console { grid-template-columns: 1fr 1.35fr 1fr; align-items: start; }
+  }
+
+  .deck {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 18px;
+    box-shadow: var(--shadow);
+  }
+  .deck-head {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+  .deck-tag {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    color: var(--text-muted);
+    flex-shrink: 0;
+  }
+  .deck-head h2 {
     font-size: 14px;
-    margin-bottom: 24px;
+    font-weight: 600;
+    margin: 0;
   }
-  .song {
-    background: #241f33;
-    border: 1px solid #40395c;
-    border-radius: 12px;
-    padding: 16px;
-    margin-bottom: 16px;
+
+  .drop {
+    border: 1px dashed var(--border);
+    border-radius: 8px;
+    padding: 14px;
+    position: relative;
   }
-  .song h2 {
-    font-size: 15px;
-    color: #cbb9ff;
-    margin-bottom: 10px;
-  }
-  input[type="file"] {
+  .drop input[type="file"] {
     width: 100%;
-    color: #efeaf7;
-    font-size: 13px;
+    color: var(--text);
+    font-size: 12.5px;
+  }
+  .drop input[type="file"]::file-selector-button {
+    background: var(--panel-2);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 6px 10px;
+    font-size: 12px;
+    margin-inline-end: 10px;
+    cursor: pointer;
   }
   .meta {
-    font-size: 13px;
-    color: #9d94b8;
-    margin-top: 8px;
-    min-height: 18px;
+    margin-top: 10px;
+    font-size: 12.5px;
+    color: var(--text-muted);
+    min-height: 16px;
   }
-  .row {
+  .meta .dur {
+    color: var(--text);
+    font-weight: 600;
+  }
+
+  .control {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 18px;
+    box-shadow: var(--shadow);
     display: flex;
-    gap: 12px;
-    margin-top: 24px;
+    flex-direction: column;
+    gap: 14px;
   }
-  .field {
-    flex: 1;
+  .control-label {
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    text-align: center;
   }
-  label {
+  canvas#fadeCanvas {
+    width: 100%;
+    height: 92px;
     display: block;
-    font-size: 13px;
-    color: #cbb9ff;
-    margin-bottom: 6px;
+    border-radius: 6px;
+    background: var(--panel-2);
+    border: 1px solid var(--border);
+  }
+  .curve-legend {
+    display: flex;
+    justify-content: center;
+    gap: 18px;
+    font-size: 11px;
+    color: var(--text-muted);
+  }
+  .curve-legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .swatch { width: 10px; height: 3px; border-radius: 2px; display: inline-block; }
+
+  .field { display: flex; flex-direction: column; gap: 6px; }
+  .field label {
+    font-size: 12.5px;
+    color: var(--text-muted);
   }
   input[type="text"], input[type="number"] {
     width: 100%;
-    background: #241f33;
-    border: 1px solid #40395c;
-    border-radius: 8px;
-    padding: 10px 12px;
-    color: #efeaf7;
+    background: var(--panel-2);
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    padding: 9px 11px;
+    color: var(--text);
     font-size: 15px;
   }
   input[type="text"]:focus, input[type="number"]:focus {
-    outline: none;
-    border-color: #9d7bff;
+    outline: 2px solid var(--accent);
+    outline-offset: 1px;
+    border-color: var(--accent);
   }
-  .hint {
-    font-size: 12px;
-    color: #8a7fab;
-    margin-top: 6px;
-  }
-  button {
+  .hint { font-size: 11px; color: var(--text-muted); }
+
+  button#processBtn {
     width: 100%;
-    margin-top: 24px;
+    margin-top: 18px;
     padding: 14px;
     border: none;
-    border-radius: 10px;
-    background: #9d7bff;
-    color: #1a1626;
-    font-size: 16px;
-    font-weight: 600;
+    border-radius: 9px;
+    background: var(--accent);
+    color: var(--accent-ink);
+    font-size: 15.5px;
+    font-weight: 700;
+    letter-spacing: 0.01em;
     cursor: pointer;
   }
-  button:disabled {
-    background: #5b5476;
-    color: #a89fc4;
+  button#processBtn:disabled {
+    opacity: 0.45;
     cursor: not-allowed;
   }
+  button#processBtn:focus-visible { outline: 2px solid var(--text); outline-offset: 2px; }
+
   #status {
-    margin-top: 16px;
+    margin-top: 12px;
     font-size: 13px;
-    color: #b9a9e8;
+    color: var(--text-muted);
     min-height: 18px;
     white-space: pre-wrap;
+    text-align: center;
   }
-  #status.error { color: #ff8a80; }
+  #status.error { color: var(--bad); }
+
   #result {
-    margin-top: 20px;
+    margin-top: 18px;
     display: none;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px;
+    box-shadow: var(--shadow);
   }
-  #result audio {
-    width: 100%;
-    margin-bottom: 14px;
-  }
-  .filename-row {
-    display: flex;
-    gap: 10px;
-  }
-  .filename-row input {
-    flex: 1;
-  }
+  #result audio { width: 100%; margin-bottom: 12px; }
+  .filename-row { display: flex; gap: 10px; }
+  .filename-row input { flex: 1; }
   a#downloadLink {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    padding: 10px 18px;
-    border-radius: 8px;
-    background: #3ecf8e;
-    color: #0f2019;
-    font-weight: 600;
+    padding: 0 18px;
+    border-radius: 7px;
+    background: var(--good);
+    color: var(--good-ink);
+    font-weight: 700;
     text-decoration: none;
-    font-size: 14px;
+    font-size: 13.5px;
     white-space: nowrap;
+  }
+  a#downloadLink:focus-visible { outline: 2px solid var(--text); outline-offset: 2px; }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { transition: none !important; animation: none !important; }
   }
 </style>
 </head>
 <body>
-  <div class="card">
-    <h1>מיקסר <span>קרוספייד</span></h1>
-    <div class="subtitle">בחר שני שירים, קבע מתי ולכמה זמן יתבצע המעבר ביניהם, והורד קובץ מוכן.</div>
+<div class="app" dir="rtl">
+  <div class="masthead">
+    <h1>קונסולת קרוספייד</h1>
+    <div class="unit mono" dir="ltr">A / B &rarr; MIX</div>
+  </div>
 
-    <div class="song">
-      <h2>שיר 1 — מתחיל</h2>
-      <input type="file" id="fileA" accept="audio/*">
+  <div class="console">
+    <section class="deck">
+      <div class="deck-head">
+        <span class="deck-tag mono">A</span>
+        <h2>שיר ראשון — מתחיל</h2>
+      </div>
+      <div class="drop">
+        <input type="file" id="fileA" accept="audio/*">
+      </div>
       <div class="meta" id="metaA"></div>
+    </section>
+
+    <div class="control">
+      <div class="control-label">אזור המעבר</div>
+      <canvas id="fadeCanvas" aria-hidden="true"></canvas>
+      <div class="curve-legend">
+        <span><i class="swatch" style="background:var(--accent)"></i>שיר A</span>
+        <span><i class="swatch" style="background:var(--good)"></i>שיר B</span>
+      </div>
+
+      <div class="field">
+        <label for="startTime">נקודת התחלה (בשיר A)</label>
+        <input type="text" id="startTime" class="mono" dir="ltr" placeholder="2:35">
+        <div class="hint">דקות:שניות, או שניות בלבד</div>
+      </div>
+      <div class="field">
+        <label for="fadeDuration">משך המעבר (שניות)</label>
+        <input type="number" id="fadeDuration" class="mono" dir="ltr" value="5" min="0.5" step="0.5">
+      </div>
     </div>
 
-    <div class="song">
-      <h2>שיר 2 — נכנס בקרוספייד</h2>
-      <input type="file" id="fileB" accept="audio/*">
+    <section class="deck">
+      <div class="deck-head">
+        <span class="deck-tag mono">B</span>
+        <h2>שיר שני — נכנס</h2>
+      </div>
+      <div class="drop">
+        <input type="file" id="fileB" accept="audio/*">
+      </div>
       <div class="meta" id="metaB"></div>
-    </div>
+    </section>
+  </div>
 
-    <div class="row">
-      <div class="field">
-        <label for="startTime">נקודת התחלת הקרוספייד (בשיר 1)</label>
-        <input type="text" id="startTime" placeholder="לדוגמה: 2:35">
-        <div class="hint">פורמט דקות:שניות, או שניות בלבד</div>
-      </div>
-      <div class="field">
-        <label for="fadeDuration">משך הקרוספייד (שניות)</label>
-        <input type="number" id="fadeDuration" value="5" min="0.5" step="0.5">
-      </div>
-    </div>
+  <button id="processBtn" disabled>עבד ומזג</button>
+  <div id="status"></div>
 
-    <button id="processBtn" disabled>עבד ומזג</button>
-    <div id="status"></div>
-
-    <div id="result">
-      <audio id="previewPlayer" controls></audio>
-      <div class="filename-row">
-        <input type="text" id="filenameInput" value="crossfade-mix.wav">
-        <a id="downloadLink" download>הורדה</a>
-      </div>
+  <div id="result">
+    <audio id="previewPlayer" controls></audio>
+    <div class="filename-row">
+      <input type="text" id="filenameInput" class="mono" dir="ltr" value="crossfade-mix.wav">
+      <a id="downloadLink" download>הורדה</a>
     </div>
   </div>
+</div>
 
 <script>
 (function () {
@@ -198,6 +360,7 @@
   const previewPlayer = document.getElementById('previewPlayer');
   const filenameInput = document.getElementById('filenameInput');
   const downloadLink = document.getElementById('downloadLink');
+  const canvas = document.getElementById('fadeCanvas');
 
   let bufferA = null;
   let bufferB = null;
@@ -205,9 +368,7 @@
   let lastObjectUrl = null;
 
   function getAudioContext() {
-    if (!audioCtx) {
-      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    }
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     return audioCtx;
   }
 
@@ -250,23 +411,98 @@
     return await ctx.decodeAudioData(arrayBuffer.slice(0));
   }
 
+  function cssVar(name) {
+    return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+  }
+
+  function redrawVisualizer() {
+    if (!canvas) return;
+    const dpr = window.devicePixelRatio || 1;
+    const rect = canvas.getBoundingClientRect();
+    if (rect.width === 0) return;
+    canvas.width = rect.width * dpr;
+    canvas.height = rect.height * dpr;
+    const ctx = canvas.getContext('2d');
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+    const W = rect.width, H = rect.height;
+    ctx.clearRect(0, 0, W, H);
+
+    const demoTotal = 60, demoStart = 42, demoDur = 6;
+    const total = bufferA ? bufferA.duration : demoTotal;
+    const rawStart = parseTime(startTimeInput.value);
+    const rawDur = parseFloat(fadeDurationInput.value);
+    let s = isNaN(rawStart) ? demoStart : Math.max(0, Math.min(rawStart, total));
+    let d = (isNaN(rawDur) || rawDur <= 0) ? demoDur : rawDur;
+    d = Math.max(0.05, Math.min(d, Math.max(total - s, 0.05)));
+    const fadeEnd = s + d;
+
+    const padL = 6, padR = 6, padT = 12, padB = 8;
+    const plotW = W - padL - padR, plotH = H - padT - padB;
+    const xOf = (t) => padL + (t / total) * plotW;
+    const yOf = (g) => padT + (1 - g) * plotH;
+
+    ctx.strokeStyle = cssVar('--border');
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(padL, yOf(0) + 0.5);
+    ctx.lineTo(W - padR, yOf(0) + 0.5);
+    ctx.stroke();
+
+    ctx.fillStyle = cssVar('--accent');
+    ctx.globalAlpha = 0.12;
+    ctx.fillRect(xOf(s), padT, xOf(fadeEnd) - xOf(s), plotH);
+    ctx.globalAlpha = 1;
+
+    ctx.strokeStyle = cssVar('--accent');
+    ctx.lineWidth = 2.25;
+    ctx.beginPath();
+    ctx.moveTo(xOf(0), yOf(1));
+    ctx.lineTo(xOf(s), yOf(1));
+    ctx.lineTo(xOf(fadeEnd), yOf(0));
+    ctx.stroke();
+
+    ctx.strokeStyle = cssVar('--good');
+    ctx.lineWidth = 2.25;
+    ctx.beginPath();
+    ctx.moveTo(xOf(s), yOf(0));
+    ctx.lineTo(xOf(fadeEnd), yOf(1));
+    ctx.lineTo(xOf(total), yOf(1));
+    ctx.stroke();
+
+    ctx.fillStyle = cssVar('--text-muted');
+    ctx.font = '10px ui-monospace, monospace';
+    ctx.direction = 'ltr';
+    const labelGap = 4;
+    if (xOf(fadeEnd) - xOf(s) < 40) {
+      ctx.textAlign = 'right';
+      ctx.fillText(formatTime(s), xOf(s) - labelGap, H - 1);
+      ctx.textAlign = 'left';
+      ctx.fillText(formatTime(fadeEnd), xOf(fadeEnd) + labelGap, H - 1);
+    } else {
+      ctx.textAlign = 'center';
+      ctx.fillText(formatTime(s), xOf(s), H - 1);
+      ctx.fillText(formatTime(fadeEnd), xOf(fadeEnd), H - 1);
+    }
+  }
+
   fileAInput.addEventListener('change', async () => {
     const file = fileAInput.files[0];
     if (!file) return;
     metaA.textContent = 'טוען...';
     try {
       bufferA = await decodeFile(file);
-      metaA.textContent = file.name + ' — משך: ' + formatTime(bufferA.duration);
+      metaA.innerHTML = file.name + ' — <span class="dur mono" dir="ltr">' + formatTime(bufferA.duration) + '</span>';
       if (!startTimeInput.value) {
-        const defaultStart = Math.max(0, bufferA.duration - 10);
-        startTimeInput.value = formatTime(defaultStart);
+        startTimeInput.value = formatTime(Math.max(0, bufferA.duration - 10));
       }
     } catch (err) {
       bufferA = null;
       metaA.textContent = '';
-      setStatus('שגיאה בטעינת שיר 1: ' + err.message, true);
+      setStatus('שגיאה בטעינת שיר A: ' + err.message, true);
     }
     updateProcessAvailability();
+    redrawVisualizer();
   });
 
   fileBInput.addEventListener('change', async () => {
@@ -275,14 +511,19 @@
     metaB.textContent = 'טוען...';
     try {
       bufferB = await decodeFile(file);
-      metaB.textContent = file.name + ' — משך: ' + formatTime(bufferB.duration);
+      metaB.innerHTML = file.name + ' — <span class="dur mono" dir="ltr">' + formatTime(bufferB.duration) + '</span>';
     } catch (err) {
       bufferB = null;
       metaB.textContent = '';
-      setStatus('שגיאה בטעינת שיר 2: ' + err.message, true);
+      setStatus('שגיאה בטעינת שיר B: ' + err.message, true);
     }
     updateProcessAvailability();
+    redrawVisualizer();
   });
+
+  startTimeInput.addEventListener('input', redrawVisualizer);
+  fadeDurationInput.addEventListener('input', redrawVisualizer);
+  window.addEventListener('resize', redrawVisualizer);
 
   function audioBufferToWav(buffer) {
     const numChannels = buffer.numberOfChannels;
@@ -292,9 +533,7 @@
     const numFrames = buffer.length;
 
     const channelData = [];
-    for (let ch = 0; ch < numChannels; ch++) {
-      channelData.push(buffer.getChannelData(ch));
-    }
+    for (let ch = 0; ch < numChannels; ch++) channelData.push(buffer.getChannelData(ch));
 
     const dataLength = numFrames * blockAlign;
     const arrayBuffer = new ArrayBuffer(44 + dataLength);
@@ -386,7 +625,7 @@
       return;
     }
     if (startSec > bufferA.duration) {
-      setStatus('נקודת ההתחלה מאוחרת מסוף שיר 1 (משך: ' + formatTime(bufferA.duration) + ')', true);
+      setStatus('נקודת ההתחלה מאוחרת מסוף שיר A (משך: ' + formatTime(bufferA.duration) + ')', true);
       return;
     }
 
@@ -411,12 +650,15 @@
       setStatus('שגיאה בעיבוד: ' + err.message, true);
     } finally {
       processBtn.disabled = false;
+      redrawVisualizer();
     }
   });
 
   filenameInput.addEventListener('input', () => {
     downloadLink.download = filenameInput.value || 'crossfade-mix.wav';
   });
+
+  redrawVisualizer();
 })();
 </script>
 </body>
