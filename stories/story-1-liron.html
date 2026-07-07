@@ -9,8 +9,8 @@
   --ink: oklch(0.16 0.012 285);
   --paper: oklch(0.97 0.005 285);
   --muted: oklch(0.86 0.01 285);
-  --accent-lt: oklch(0.82 0.15 288);
-  --accent: oklch(0.74 0.17 288);
+  --accent-lt: oklch(0.82 0.15 220);
+  --accent: oklch(0.74 0.17 220);
 }
 
 * { margin:0; padding:0; box-sizing:border-box; }
@@ -40,7 +40,7 @@ html, body { width:1080px; height:1920px; background:var(--ink); font-family:'He
 .top-bar .seg { height:6px; flex:1; max-width:120px; border-radius:100px; background:oklch(1 0 0 / .28); }
 .top-bar .seg.active { background:var(--paper); }
 
-.brand { position:relative; z-index:2; display:flex; direction:ltr; align-items:baseline; justify-content:center; gap:16px; margin-top:190px; }
+.brand { position:relative; z-index:2; display:flex; direction:ltr; align-items:baseline; justify-content:center; gap:16px; margin-top:130px; }
 .brand .mark { font-family:'Suez One',serif; font-size:56px; color:var(--paper); }
 .brand .mark .q { color:var(--accent-lt); }
 .brand .script { font-family:'Great Vibes',cursive; font-size:48px; color:var(--accent-lt); margin-inline-start:2px; }
@@ -67,7 +67,7 @@ h1 {
 
 .tag {
   display:inline-flex; align-items:center; gap:8px;
-  background:oklch(0.74 0.17 288 / .22); border:1px solid oklch(0.82 0.15 288 / .55);
+  background:oklch(0.74 0.17 220 / .22); border:1px solid oklch(0.82 0.15 220 / .55);
   color:var(--accent-lt);
   border-radius:100px; padding:16px 32px; font-size:28px; font-weight:800;
   margin-bottom:32px;
